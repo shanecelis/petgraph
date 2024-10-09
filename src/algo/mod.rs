@@ -158,7 +158,7 @@ where
                     for succ in g.neighbors(nx) {
                         if succ == nx {
                             // self cycle
-                            return Err(Cycle(nx));
+                            return Err(Cycle(nx, nx));
                         }
                         if !dfs.discovered.is_visited(&succ) {
                             dfs.stack.push(succ);
@@ -181,7 +181,7 @@ where
             let mut cycle = false;
             while let Some(j) = dfs.next(Reversed(g)) {
                 if cycle {
-                    return Err(Cycle(j));
+                    return Err(Cycle(j, i));
                 }
                 cycle = true;
             }
@@ -639,7 +639,7 @@ where
 
 /// An algorithm error: a cycle was found in the graph.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Cycle<N>(N);
+pub struct Cycle<N>(N, N);
 
 impl<N> Cycle<N> {
     /// Return a node id that participates in the cycle
@@ -648,6 +648,15 @@ impl<N> Cycle<N> {
         N: Copy,
     {
         self.0
+    }
+
+    /// The neighboring id that participates in the cycle. May be the same as
+    /// the node id for self edges.
+    pub fn neighbor_id(&self) -> N
+        where
+        N: Copy,
+    {
+        self.1
     }
 }
 
